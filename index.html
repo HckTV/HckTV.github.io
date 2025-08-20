@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HCKTV</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700;400&display=swap" rel="stylesheet">
+    <style>
+        body {
+            background: #111;
+            color: #fff;
+            font-family: 'Montserrat', Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+        .logo {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: #e53935;
+            letter-spacing: 2px;
+            text-shadow: 0 2px 8px #000a;
+            transition: transform 0.3s;
+        }
+        .logo:hover {
+            transform: scale(1.08) rotate(-2deg);
+            text-shadow: 0 4px 16px #e53935aa;
+        }
+        .search {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: #fff;
+            cursor: pointer;
+            transition: color 0.3s;
+        }
+        .search:hover {
+            color: #e53935;
+        }
+        .nav {
+            display: flex;
+            gap: 32px;
+            margin-bottom: 30px;
+        }
+        .nav-item {
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: #888;
+            cursor: pointer;
+            position: relative;
+            transition: color 0.3s;
+        }
+        .nav-item.active {
+            color: #e53935;
+        }
+        .nav-item:hover {
+            color: #e53935;
+        }
+        .nav-item::after {
+            content: '';
+            display: block;
+            height: 3px;
+            width: 0;
+            background: #e53935;
+            position: absolute;
+            left: 0;
+            bottom: -6px;
+            transition: width 0.3s;
+        }
+        .nav-item:hover::after {
+            width: 100%;
+        }
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 32px;
+            margin-bottom: 32px;
+        }
+        .card {
+            background: #222;
+            border-radius: 16px;
+            box-shadow: 0 2px 12px #000a;
+            height: 180px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.1rem;
+            color: #aaa;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        .card:hover {
+            transform: scale(1.06) translateY(-8px);
+            box-shadow: 0 8px 32px #e53935aa;
+            color: #fff;
+        }
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: linear-gradient(120deg, #e53935 0%, transparent 100%);
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        .card:hover::before {
+            opacity: 0.18;
+        }
+        @media (max-width: 900px) {
+            .grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+        @media (max-width: 600px) {
+            .container {
+                padding: 16px 4px;
+            }
+            .header {
+                flex-direction: column;
+                gap: 12px;
+            }
+            .nav {
+                gap: 16px;
+                font-size: 1.1rem;
+            }
+            .grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 16px;
+            }
+            .card {
+                height: 120px;
+                font-size: 0.95rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <a href="index.html" class="logo" style="text-decoration:none;">HCKTV</a>
+            <div style="display:flex;align-items:center;gap:12px;">
+                <input id="search-input" type="text" placeholder="Search movies or series..." style="padding:8px 16px;border-radius:8px;border:none;background:#222;color:#fff;font-size:1.1rem;transition:box-shadow 0.3s;width:220px;outline:none;box-shadow:0 2px 8px #000a;" />
+                <button id="search-btn" style="font-weight:700;color:#fff;background:#e53935;padding:8px 16px;border-radius:8px;border:none;cursor:pointer;transition:background 0.3s;">Search</button>
+            </div>
+        </div>
+        <div class="nav">
+            <a href="index.html" class="nav-item active">Latest</a>
+            <a href="movies.html" class="nav-item">Movies</a>
+            <a href="series.html" class="nav-item">Series</a>
+        </div>
+            <div style="margin-bottom:24px;">
+                <div id="genre-dropdown-container" style="position:relative;display:inline-block;">
+                    <button id="genre-dropdown-btn" style="font-weight:700;color:#e53935;background:#222;padding:8px 16px;border-radius:8px;border:none;cursor:pointer;transition:background 0.3s;">Filter by Genre ▾</button>
+                    <div id="genre-dropdown" style="display:none;position:absolute;z-index:10;min-width:220px;background:#222;border-radius:12px;box-shadow:0 8px 32px #000a;padding:12px 0;top:110%;left:0;animation:fadeIn 0.3s;">
+                        <div style="padding:0 16px;color:#888;font-size:1rem;">Loading genres...</div>
+                    </div>
+                </div>
+                <button id="apply-genre" style="margin-left:12px;padding:8px 16px;border-radius:8px;background:#e53935;color:#fff;border:none;font-weight:700;cursor:pointer;transition:background 0.3s;">Apply</button>
+                <style>
+                @keyframes fadeIn { from { opacity:0; transform:translateY(-10px);} to { opacity:1; transform:translateY(0);} }
+                .genre-option { display:flex;align-items:center;padding:8px 16px;cursor:pointer;transition:background 0.2s; border-radius:8px;}
+                .genre-option:hover { background:#e53935aa; color:#fff;}
+                .genre-option.selected { background:#e53935; color:#fff;}
+                .genre-check { width:18px;height:18px;border-radius:4px;border:2px solid #e53935;margin-right:10px;display:flex;align-items:center;justify-content:center;background:#222;transition:background 0.2s,border 0.2s;}
+                .genre-option.selected .genre-check { background:#e53935; border-color:#fff;}
+                .genre-check svg { display:none; }
+                .genre-option.selected .genre-check svg { display:block; }
+                #genre-dropdown::-webkit-scrollbar { width:8px; background:#222; }
+                #genre-dropdown { max-height:320px; overflow-y:auto; }
+                </style>
+            </div>
+        <div class="grid" id="latest-grid">
+            <!-- Posters will be injected here -->
+        </div>
+        <script>
+        async function searchTMDB(query) {
+            if (!query.trim()) { fetchLatest(selectedGenres); return; }
+            const movieRes = await fetch(`https://api.themoviedb.org/3/search/movie?query=${encodeURIComponent(query)}&language=en-US&page=1`, { headers: { Authorization: `Bearer ${TMDB_READ_TOKEN}` }});
+            const tvRes = await fetch(`https://api.themoviedb.org/3/search/tv?query=${encodeURIComponent(query)}&language=en-US&page=1`, { headers: { Authorization: `Bearer ${TMDB_READ_TOKEN}` }});
+            const movies = (await movieRes.json()).results || [];
+            const tvs = (await tvRes.json()).results || [];
+            const all = [...movies, ...tvs].sort((a, b) => {
+                const dateA = new Date(a.release_date || a.first_air_date || 0);
+                const dateB = new Date(b.release_date || b.first_air_date || 0);
+                return dateB - dateA;
+            }).slice(0, 50);
+            const grid = document.getElementById('latest-grid');
+            grid.innerHTML = all.length ? all.map(item => {
+                const title = item.title || item.name;
+                const date = item.release_date || item.first_air_date || '';
+                const type = item.title ? 'movie' : 'series';
+                let posterHtml;
+                if (item.poster_path) {
+                    posterHtml = `<img src=\"https://image.tmdb.org/t/p/w500${item.poster_path}\" alt=\"${title}\" style=\"width:100%;height:80%;object-fit:cover;border-radius:12px 12px 0 0;\">`;
+                } else {
+                    posterHtml = `<div style=\"width:100%;height:80%;display:flex;align-items:center;justify-content:center;align-content:center;text-align:center;background:#333;color:#e53935;font-weight:700;font-size:1.1rem;border-radius:12px 12px 0 0;\">No Poster Available</div>`;
+                }
+                return `<div class=\"card\" onclick=\"window.location.href='details.html?type=${type}&id=${item.id}'\">\n                    ${posterHtml}\n                    <div style=\"padding:8px 6px 0 6px;text-align:center;width:100%;background:#222;border-radius:0 0 12px 12px;\">\n                        <div style=\"font-weight:700;font-size:1.05rem;\">${title}</div>\n                        <div style=\"font-size:0.95rem;color:#e53935;\">${date}</div>\n                    </div>\n                </div>`;
+            }).join('') : `<div style='color:#e53935;font-size:1.2rem;text-align:center;width:100%;padding:32px 0;'>No results found.</div>`;
+        }
+        document.getElementById('search-btn').onclick = () => {
+            const query = document.getElementById('search-input').value;
+            searchTMDB(query);
+        };
+        document.getElementById('search-input').addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') {
+                searchTMDB(this.value);
+            }
+        });
+        const TMDB_READ_TOKEN = 'eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiI0NWY5MTMzYjFiY2YxZjg3ZWMzOTQyOWE1YjE1Y2M0ZCIsIm5iZiI6MTc1NTM2NTY4MC45MTkwMDAxLCJzdWIiOiI2OGEwYzEzMDgyMjkzYzdkMTU2MWJjMWIiLCJzY29wZXMiOlsiYXBpX3JlYWQiXSwidmVyc2lvbiI6MX0.eteipqCHHoykH432yP5Ah5STKY0WpcxvI1fyzXA78Dg';
+        async function fetchGenres() {
+            const res = await fetch('https://api.themoviedb.org/3/genre/movie/list?language=en', {
+                headers: { Authorization: `Bearer ${TMDB_READ_TOKEN}` }
+            });
+            const data = await res.json();
+            return data.genres || [];
+        }
+        function renderGenreDropdown(genres, selectedGenres) {
+            const dropdown = document.getElementById('genre-dropdown');
+            dropdown.innerHTML = genres.map(g => `
+                <div class="genre-option${selectedGenres.includes(g.id+'') ? ' selected' : ''}" data-id="${g.id}">
+                    <span class="genre-check">${selectedGenres.includes(g.id+'') ? '<svg width=14 height=14><polyline points=\"2,7 6,11 12,3\" style=\"fill:none;stroke:#fff;stroke-width:2\"/></svg>' : ''}</span>
+                    ${g.name}
+                </div>
+            `).join('');
+        }
+        let genresList = [];
+        let selectedGenres = [];
+        document.getElementById('genre-dropdown-btn').onclick = function() {
+            const dropdown = document.getElementById('genre-dropdown');
+            dropdown.style.display = dropdown.style.display === 'block' ? 'none' : 'block';
+        };
+        document.addEventListener('click', function(e) {
+            if (!e.target.closest('#genre-dropdown-container')) {
+                document.getElementById('genre-dropdown').style.display = 'none';
+            }
+        });
+        async function setupGenres() {
+            genresList = await fetchGenres();
+            renderGenreDropdown(genresList, selectedGenres);
+            document.getElementById('genre-dropdown').onclick = function(e) {
+                const opt = e.target.closest('.genre-option');
+                if (!opt) return;
+                const id = opt.getAttribute('data-id');
+                if (selectedGenres.includes(id)) {
+                    selectedGenres = selectedGenres.filter(g => g !== id);
+                } else {
+                    selectedGenres.push(id);
+                }
+                renderGenreDropdown(genresList, selectedGenres);
+            };
+        }
+        document.getElementById('apply-genre').onclick = () => {
+            document.getElementById('genre-dropdown').style.display = 'none';
+            fetchLatest(selectedGenres);
+        };
+        setupGenres();
+        async function fetchLatest(genres=[]) {
+            let movieUrl = 'https://api.themoviedb.org/3/movie/now_playing?language=en-US&page=1';
+            let tvUrl = 'https://api.themoviedb.org/3/tv/airing_today?language=en-US&page=1';
+            if (genres.length) {
+                movieUrl = `https://api.themoviedb.org/3/discover/movie?language=en-US&page=1&with_genres=${genres.join(',')}`;
+                tvUrl = `https://api.themoviedb.org/3/discover/tv?language=en-US&page=1&with_genres=${genres.join(',')}`;
+            }
+            const movieRes = await fetch(movieUrl, { headers: { Authorization: `Bearer ${TMDB_READ_TOKEN}` }});
+            const tvRes = await fetch(tvUrl, { headers: { Authorization: `Bearer ${TMDB_READ_TOKEN}` }});
+            const movies = (await movieRes.json()).results || [];
+            const tvs = (await tvRes.json()).results || [];
+            const all = [...movies, ...tvs].sort((a, b) => {
+                const dateA = new Date(a.release_date || a.first_air_date || 0);
+                const dateB = new Date(b.release_date || b.first_air_date || 0);
+                return dateB - dateA;
+            }).slice(0, 50);
+            const grid = document.getElementById('latest-grid');
+            grid.innerHTML = all.map(item => {
+                const title = item.title || item.name;
+                const date = item.release_date || item.first_air_date || '';
+                const type = item.title ? 'movie' : 'series';
+                let posterHtml;
+                if (item.poster_path) {
+                    posterHtml = `<img src=\"https://image.tmdb.org/t/p/w500${item.poster_path}\" alt=\"${title}\" style=\"width:100%;height:80%;object-fit:cover;border-radius:12px 12px 0 0;\">`;
+                } else {
+                    posterHtml = `<div style=\"width:100%;height:80%;display:flex;align-items:center;justify-content:center;align-content:center;text-align:center;background:#333;color:#e53935;font-weight:700;font-size:1.1rem;border-radius:12px 12px 0 0;\">No Poster Available</div>`;
+                }
+                return `<div class=\"card\" onclick=\"window.location.href='details.html?type=${type}&id=${item.id}'\">\n                    ${posterHtml}\n                    <div style=\"padding:8px 6px 0 6px;text-align:center;width:100%;background:#222;border-radius:0 0 12px 12px;\">\n                        <div style=\"font-weight:700;font-size:1.05rem;\">${title}</div>\n                        <div style=\"font-size:0.95rem;color:#e53935;\">${date}</div>\n                    </div>\n                </div>`;
+            }).join('');
+        }
+    // Only use custom dropdown logic
+    fetchLatest();
+    // Auto search if redirected from details.html
+    const urlParams = new URLSearchParams(window.location.search);
+    const autoSearch = urlParams.get('autosearch');
+    const searchQuery = urlParams.get('search');
+    if (autoSearch === '1' && searchQuery) {
+        document.getElementById('search-input').value = searchQuery;
+        searchTMDB(searchQuery);
+    }
+        </script>
+    </div>
+<script>
+// Redirect to google.com if DevTools/Inspect Element is opened
+(function() {
+    let devtoolsOpen = false;
+    const threshold = 160;
+    function detectDevTools() {
+        const widthThreshold = window.outerWidth - window.innerWidth > threshold;
+        const heightThreshold = window.outerHeight - window.innerHeight > threshold;
+        if (widthThreshold || heightThreshold) {
+            if (!devtoolsOpen) {
+                devtoolsOpen = true;
+                window.location.href = 'https://google.com';
+            }
+        } else {
+            devtoolsOpen = false;
+        }
+    }
+    setInterval(detectDevTools, 500);
+    // Also listen for key shortcuts (F12, Ctrl+Shift+I)
+    window.addEventListener('keydown', function(e) {
+        if (
+            e.key === 'F12' ||
+            (e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'J'))
+        ) {
+            window.location.href = 'https://google.com';
+        }
+    });
+})();
+</script>
+</body>
+</html>
